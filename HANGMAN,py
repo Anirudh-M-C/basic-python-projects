@@ -1,0 +1,80 @@
+import random
+import string
+from hangedperson import hangman_stages
+
+# Word categories and corresponding word lists
+word_categories = {
+    "Animals": ["giraffe","tiger","bear","cat","goat", "dog", "elephant", "giraffe", "lion"],
+    "Fruits": ["apple","grape","gooseburry","pear","pineapple","watermelon", "banana", "orange", "kiwi", "mango"],
+    "Countries": ["india","korea","france","england","canada", "germany", "japan", "brazil", "australia"]
+}
+
+
+class HangmanGame:
+    def __init__(self):
+        self.word = None
+        self.word_category = None
+        self.letters = set()
+        self.guessed_letters = set()
+        self.max_attempts = len(hangman_stages) - 1
+        self.attempts_left = self.max_attempts
+
+    def selectWordCategory(self):
+        print("Word Categories:")
+        for category in word_categories:
+            print("- " + category)
+        category = input("Select a category: ")
+        self.word_category = category.capitalize()
+
+    def selectRandomWord(self):
+        word_list = word_categories.get(self.word_category)
+        if word_list:
+            self.word = random.choice(word_list).upper()
+
+    def printBoard(self):
+        print(hangman_stages[self.max_attempts - self.attempts_left])
+        print("Category: " + self.word_category)
+        word = [letter if letter in self.guessed_letters else '-' for letter in self.word]
+        print("Current word: " + ' '.join(word))
+        print("Guessed letters: " + ' '.join(sorted(self.guessed_letters)))
+
+    def makeMove(self):
+        while True:
+            letter = input("Guess a letter: ").upper()
+            if letter in string.ascii_uppercase and letter not in self.guessed_letters:
+                self.guessed_letters.add(letter)
+                break
+            else:
+                print("Invalid guess. Try again.")
+
+    def checkWin(self):
+        for letter in self.word:
+            if letter not in self.guessed_letters:
+                return False
+        return True
+
+    def playGame(self):
+        print("Hangman Game")
+        print("Try to guess the word before the hangman is complete!")
+
+        self.selectWordCategory()
+        self.selectRandomWord()
+
+        while self.attempts_left > 0:
+            self.printBoard()
+            self.makeMove()
+            if self.word.find(list(self.guessed_letters)[-1]) == -1:
+                self.attempts_left -= 1
+                print("Letter not in word. Attempts left:", self.attempts_left)
+            if self.checkWin():
+                self.printBoard()
+                print("Congratulations! You won!")
+                break
+
+        if self.attempts_left == 0:
+            print(hangman_stages[self.max_attempts])
+            print("You lost! The word was:", self.word)
+
+# Run the game
+game = HangmanGame()
+game.playGame()
